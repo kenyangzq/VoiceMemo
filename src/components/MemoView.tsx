@@ -3,6 +3,18 @@ import ReactMarkdown from 'react-markdown';
 import { storage } from '../lib/storage';
 import type { Memo, Language } from '../types';
 
+// Check if Web Share API is supported
+const supportsWebShare = () => {
+  return typeof navigator !== 'undefined' && 'share' in navigator;
+};
+
+// Check if running on iOS (for Shortcuts)
+const isIOS = () => {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua);
+};
+
 interface Props {
   memo: Memo;
   onDelete: () => void;
@@ -18,6 +30,8 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
   const [content, setContent] = useState(memo.content);
   const [tags, setTags] = useState(memo.tags.join(', '));
   const [tagInput, setTagInput] = useState('');
+  const [copyFeedback, setCopyFeedback] = useState('');
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   const handleDelete = () => {
     if (confirm('Delete this memo?')) {
@@ -82,6 +96,49 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
 
   const dt = formatDateTime(memo.createdAt);
 
+  // Prepare memo text for sharing (strip markdown for plain text apps)
+  const getPlainText = () => {
+    return `${memo.title}\n\n${memo.content.replace(/[#*_`-]/g, '').trim()}`;
+  };
+
+  // Web Share API - works on iOS Safari and Android
+  const handleWebShare = async () => {
+    try {
+      await navigator.share({
+        title: memo.title,
+        text: getPlainText(),
+      });
+      setShowShareMenu(false);
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Share failed:', err);
+      }
+    }
+  };
+
+  // Copy to clipboard - universal fallback
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(getPlainText());
+      setCopyFeedback('Copied!');
+      setTimeout(() => setCopyFeedback(''), 2000);
+      setShowShareMenu(false);
+    } catch (err) {
+      console.error('Copy failed:', err);
+      setCopyFeedback('Failed');
+      setTimeout(() => setCopyFeedback(''), 2000);
+    }
+  };
+
+  // Apple Shortcuts URL scheme
+  const handleShortcuts = () => {
+    const shortcutName = encodeURIComponent('VoiceMemoToNotes');
+    const inputText = encodeURIComponent(getPlainText());
+    const url = `shortcuts://run-shortcut?name=${shortcutName}&input=${inputText}&text=${inputText}`;
+    window.location.href = url;
+    setShowShareMenu(false);
+  };
+
   return (
     <div className="memo-view">
       <div className="memo-view-header">
@@ -107,6 +164,35 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
                 + Add Recording
               </button>
             )}
+            <div className="share-container">
+              <button
+                className="share-btn"
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                title="Share to Notes"
+              >
+                Share
+              </button>
+              {showShareMenu && (
+                <div className="share-menu">
+                  {supportsWebShare() && (
+                    <button className="share-menu-item" onClick={handleWebShare}>
+                      <span className="share-icon">•••</span>
+                      Share... (iOS/Android)
+                    </button>
+                  )}
+                  <button className="share-menu-item" onClick={handleCopy}>
+                    <span className="share-icon">{copyFeedback || '📋'}</span>
+                    Copy to Clipboard
+                  </button>
+                  {isIOS() && (
+                    <button className="share-menu-item" onClick={handleShortcuts}>
+                      <span className="share-icon">⌘</span>
+                      Apple Shortcuts
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
             <button className="delete-btn" onClick={handleDelete}>
               Delete
             </button>

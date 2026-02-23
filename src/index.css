@@ -327,6 +327,72 @@ body {
   background: rgba(239, 68, 68, 0.1);
 }
 
+/* Share button and menu */
+.share-container {
+  position: relative;
+}
+
+.share-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.15s;
+}
+
+.share-btn:hover {
+  background: var(--surface-hover);
+}
+
+.share-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.share-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.share-menu-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.share-menu-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.share-menu-item:hover {
+  background: var(--surface-hover);
+}
+
+.share-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
 .memo-view-meta {
   color: var(--text-muted);
   font-size: 0.8rem;

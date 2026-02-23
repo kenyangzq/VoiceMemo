@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-02-23: Add Apple Notes integration (Share to Notes)
+- Added Share button in MemoView header with dropdown menu for multiple export options
+- **Web Share API**: On iOS Safari and Android, opens native share sheet to select Notes app
+- **Copy to Clipboard**: Universal fallback with visual "Copied!" feedback after copying
+- **Apple Shortcuts**: iOS-only option that triggers custom shortcuts via URL scheme (`shortcuts://run-shortcut`)
+- Share text strips markdown formatting for clean plain text in Notes
+- Platform detection (iOS vs desktop) shows/hides relevant options
+- Updated `src/components/MemoView.tsx` with share handlers and menu UI
+- Updated `src/index.css` with `.share-container`, `.share-btn`, `.share-menu` styles
+- Version bumped to 1.4.0
+
 ## 2026-02-23: Fix transcription repeating words multiple times
 - Fixed critical bug in `api/src/functions/transcribe.ts` where `Uint8Array.subarray().buffer` returned the entire underlying ArrayBuffer instead of just the chunk
 - Each chunk write to the push stream was sending the full audio data, causing Azure Speech to process and transcribe the audio N times
