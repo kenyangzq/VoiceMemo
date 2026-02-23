@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-02-23: Fix transcription repeating words multiple times
+- Fixed critical bug in `api/src/functions/transcribe.ts` where `Uint8Array.subarray().buffer` returned the entire underlying ArrayBuffer instead of just the chunk
+- Each chunk write to the push stream was sending the full audio data, causing Azure Speech to process and transcribe the audio N times
+- Changed `subarray()` to `slice()` which creates a new ArrayBuffer containing only the chunk data
+- Version bumped to 1.3.1
+
 ## 2026-02-23: Support long audio transcription (>15 seconds)
 - Replaced `recognizeOnceAsync` with `startContinuousRecognitionAsync` in `api/src/functions/transcribe.ts`
 - Previous implementation only recognized a single phrase (~15s max), silently dropping the rest

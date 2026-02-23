@@ -143,7 +143,8 @@ app.http('transcribe', {
       let totalChunks = 0;
 
       for (let i = 0; i < uint8Array.length; i += chunkSize) {
-        const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
+        const end = Math.min(i + chunkSize, uint8Array.length);
+        const chunk = uint8Array.slice(i, end);
         pushStream.write(chunk.buffer as ArrayBuffer);
         totalChunks++;
       }
