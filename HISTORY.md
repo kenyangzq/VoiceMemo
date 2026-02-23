@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-02-23: Fix mobile header layout overflow
+- Restructured `.app-header` from centered single-row to space-between layout (title left, controls right)
+- Added `flex-wrap` on `.header-controls` so controls wrap gracefully on narrow screens
+- Added responsive breakpoint at 480px: hides view toggle labels, reduces font sizes and padding
+- Reduced h1 font size slightly for better mobile fit
+
 ## 2026-02-23: Add folder structure for memo organization
 - Added `ViewMode` type (`'flat' | 'tag-folders' | 'date-folders'`) to `src/types.ts`
 - Updated `src/lib/settings.ts` — localStorage persistence for view mode preference
