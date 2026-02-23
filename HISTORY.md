@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-02-23: Fix memo edit UX and append transcription bug
+- Added Cancel/Save buttons to memo view header when editing, so they're always visible without scrolling
+- Fixed stale closure bug in Recorder: `stopRecording` now includes `language` and `memoId` in dependency array, fixing broken append-to-existing-memo transcription
+- Kept bottom form Cancel/Save buttons as well for convenience
+
 ## 2026-02-23: Fix mobile header layout overflow
 - Restructured `.app-header` from centered single-row to space-between layout (title left, controls right)
 - Added `flex-wrap` on `.header-controls` so controls wrap gracefully on narrow screens

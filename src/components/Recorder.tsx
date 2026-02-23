@@ -118,7 +118,7 @@ export function Recorder({ onMemoSaved, language, memoId }: Props) {
     } finally {
       setProcessing(false);
     }
-  }, [onMemoSaved]);
+  }, [onMemoSaved, language, memoId]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);

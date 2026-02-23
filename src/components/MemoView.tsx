@@ -85,22 +85,33 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
   return (
     <div className="memo-view">
       <div className="memo-view-header">
-        <button className="back-btn" onClick={onBack}>
-          &larr; Back
-        </button>
-        {!editing && (
-          <button className="edit-btn" onClick={() => setEditing(true)}>
-            Edit
-          </button>
+        {editing ? (
+          <>
+            <button className="form-btn form-btn-cancel" onClick={handleCancel}>
+              Cancel
+            </button>
+            <button className="form-btn form-btn-save" onClick={handleSave}>
+              Save
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="back-btn" onClick={onBack}>
+              &larr; Back
+            </button>
+            <button className="edit-btn" onClick={() => setEditing(true)}>
+              Edit
+            </button>
+            {onAppendRecording && (
+              <button className="append-btn" onClick={onAppendRecording}>
+                + Add Recording
+              </button>
+            )}
+            <button className="delete-btn" onClick={handleDelete}>
+              Delete
+            </button>
+          </>
         )}
-        {onAppendRecording && !editing && (
-          <button className="append-btn" onClick={onAppendRecording}>
-            + Add Recording
-          </button>
-        )}
-        <button className="delete-btn" onClick={handleDelete}>
-          Delete
-        </button>
       </div>
 
       <div className="memo-view-meta">
@@ -191,6 +202,7 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
               Save
             </button>
           </div>
+
         </div>
       ) : (
         <div className="memo-view-content">
