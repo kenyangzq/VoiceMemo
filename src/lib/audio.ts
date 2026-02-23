@@ -135,7 +135,8 @@ export class AudioRecorder {
       if (e.data.size > 0) this.chunks.push(e.data);
     };
 
-    this.mediaRecorder.start();
+    // Use 1-second timeslice to collect data incrementally for long recordings
+    this.mediaRecorder.start(1000);
   }
 
   async stop(): Promise<{ blob: Blob; duration: number }> {

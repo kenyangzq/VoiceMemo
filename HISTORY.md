@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-02-23: Support long audio transcription (>15 seconds)
+- Replaced `recognizeOnceAsync` with `startContinuousRecognitionAsync` in `api/src/functions/transcribe.ts`
+- Previous implementation only recognized a single phrase (~15s max), silently dropping the rest
+- Continuous recognition collects all speech segments and joins them into full text
+- Dynamic timeout based on audio duration (audio length + 30s buffer, minimum 60s)
+- Graceful handling: returns partial results if an error occurs mid-recognition
+- Updated `src/lib/audio.ts` MediaRecorder to use 1-second timeslice for reliable long recording data collection
+- Version bumped to 1.3.0
+
 ## 2026-02-23: Fix memo edit UX and append transcription bug
 - Added Cancel/Save buttons to memo view header when editing, so they're always visible without scrolling
 - Fixed stale closure bug in Recorder: `stopRecording` now includes `language` and `memoId` in dependency array, fixing broken append-to-existing-memo transcription

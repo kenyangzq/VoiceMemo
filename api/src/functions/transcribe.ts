@@ -157,32 +157,87 @@ app.http('transcribe', {
       log(context, 'Creating speech recognizer');
       const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
 
-      // Perform recognition with timeout
-      log(context, 'Starting recognition (30s timeout)');
+      // Use continuous recognition to support long audio (>15s)
+      // Estimate timeout based on audio duration: audio bytes / (sampleRate * bytesPerSample * channels) = seconds
+      const audioDurationSec = uint8Array.length / (sampleRateFromHeader * (bitsPerSample / 8) * channels);
+      const timeoutMs = Math.max(60000, (audioDurationSec + 30) * 1000); // at least 60s, or audio duration + 30s buffer
+
+      log(context, 'Starting continuous recognition', {
+        estimatedAudioDuration: `${audioDurationSec.toFixed(1)}s`,
+        timeout: `${(timeoutMs / 1000).toFixed(0)}s`,
+      });
+
       const recognitionStart = Date.now();
 
-      const result = await new Promise<sdk.SpeechRecognitionResult>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          log(context, 'ERROR: Recognition timeout (30s)');
-          recognizer.close();
-          reject(new Error('Recognition timeout after 30 seconds'));
-        }, 30000);
+      const result = await new Promise<{ text: string; error?: string }>((resolve, reject) => {
+        const segments: string[] = [];
+        let lastError: string | undefined;
 
-        recognizer.recognizeOnceAsync(
-          (result) => {
-            clearTimeout(timeout);
-            const duration = Date.now() - recognitionStart;
-            log(context, 'Recognition callback received', {
-              duration: `${duration}ms`,
-              reason: result.reason,
-            });
+        const timeout = setTimeout(() => {
+          log(context, 'ERROR: Recognition timeout');
+          recognizer.stopContinuousRecognitionAsync(() => {
             recognizer.close();
-            resolve(result);
+            if (segments.length > 0) {
+              resolve({ text: segments.join(' ') });
+            } else {
+              reject(new Error(`Recognition timeout after ${(timeoutMs / 1000).toFixed(0)} seconds`));
+            }
+          });
+        }, timeoutMs);
+
+        recognizer.recognized = (_sender, e) => {
+          if (e.result.reason === sdk.ResultReason.RecognizedSpeech && e.result.text) {
+            log(context, 'Segment recognized', {
+              segmentIndex: segments.length,
+              text: e.result.text,
+            });
+            segments.push(e.result.text);
+          } else if (e.result.reason === sdk.ResultReason.NoMatch) {
+            log(context, 'Segment: no match');
+          }
+        };
+
+        recognizer.canceled = (_sender, e) => {
+          clearTimeout(timeout);
+          if (e.reason === sdk.CancellationReason.EndOfStream) {
+            // Normal completion - all audio processed
+            log(context, 'Recognition completed (end of stream)', { segmentCount: segments.length });
+            recognizer.stopContinuousRecognitionAsync(() => {
+              recognizer.close();
+              resolve({ text: segments.join(' ') });
+            });
+          } else if (e.reason === sdk.CancellationReason.Error) {
+            log(context, 'ERROR: Recognition canceled with error', {
+              errorCode: e.errorCode,
+              errorDetails: e.errorDetails,
+            });
+            recognizer.stopContinuousRecognitionAsync(() => {
+              recognizer.close();
+              if (segments.length > 0) {
+                // Return partial results if we have any
+                resolve({ text: segments.join(' '), error: e.errorDetails });
+              } else {
+                reject(new Error(`Speech recognition error: ${e.errorDetails}`));
+              }
+            });
+          }
+        };
+
+        recognizer.sessionStopped = () => {
+          clearTimeout(timeout);
+          log(context, 'Session stopped', { segmentCount: segments.length });
+          recognizer.close();
+          resolve({ text: segments.join(' ') });
+        };
+
+        recognizer.startContinuousRecognitionAsync(
+          () => {
+            log(context, 'Continuous recognition started');
           },
           (error: unknown) => {
             clearTimeout(timeout);
-            log(context, 'ERROR: Recognition callback error', {
-              error: typeof error === 'object' && error !== null ? String(error) : String(error),
+            log(context, 'ERROR: Failed to start continuous recognition', {
+              error: String(error),
             });
             recognizer.close();
             reject(error);
@@ -192,47 +247,17 @@ app.http('transcribe', {
 
       const totalDuration = Date.now() - requestStart;
       log(context, 'Recognition completed', {
-        resultReason: result.reason,
         textLength: result.text?.length || 0,
-        textPreview: result.text?.slice(0, 50) || '(empty)',
+        textPreview: result.text?.slice(0, 100) || '(empty)',
         totalDuration: `${totalDuration}ms`,
+        hasPartialError: !!result.error,
       });
 
-      if (result.reason === sdk.ResultReason.RecognizedSpeech) {
-        log(context, 'SUCCESS: Speech recognized', {
-          text: result.text,
-          duration: result.duration ? `${result.duration / 10000}ms` : 'N/A',
-        });
-        return {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: result.text }),
-        };
-      } else if (result.reason === sdk.ResultReason.NoMatch) {
-        const noMatchDetails = sdk.NoMatchDetails.fromResult(result);
-        log(context, 'WARNING: No speech matched', {
-          reason: noMatchDetails.reason,
-        });
-        return {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: '' }),
-        };
-      } else if (result.reason === sdk.ResultReason.Canceled) {
-        const cancellation = sdk.CancellationDetails.fromResult(result);
-        log(context, 'ERROR: Recognition canceled', {
-          reason: cancellation.reason,
-          ErrorCode: cancellation.ErrorCode,
-          errorDetails: cancellation.errorDetails,
-        });
-        return {
-          status: 500,
-          body: `Speech recognition canceled: ${cancellation.reason} - ${cancellation.errorDetails}`,
-        };
-      }
-
-      log(context, 'ERROR: Unknown recognition result', { reason: result.reason });
-      return { status: 500, body: 'Unknown recognition result' };
+      return {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: result.text }),
+      };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       const stack = err instanceof Error ? err.stack : undefined;
