@@ -3,6 +3,7 @@ import { Recorder } from './Recorder';
 import { MemoList } from './MemoList';
 import { MemoView } from './MemoView';
 import { storage } from '../lib/storage';
+import { VERSION } from '../version';
 import type { Memo } from '../types';
 
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
     <div className="app">
       <header className="app-header">
         <h1>VoiceMemo</h1>
+        <span className="version">v{VERSION}</span>
       </header>
 
       <main className="app-main">
