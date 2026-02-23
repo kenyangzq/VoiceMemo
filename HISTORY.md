@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-02-23: Add version display to app
+- Created `src/version.ts` — exports version constant
+- Updated `package.json` version from 0.0.0 to 1.0.0
+- Modified `src/components/App.tsx` — displays version badge next to app title
+- Updated `src/index.css` — added styling for `.version` class
+- Version shown as "v1.0.0" in header for tracking deployed versions
+
 ## 2026-02-22: Add Bicep templates for Azure infrastructure
 - Created `infra/main.bicep` — provisions Azure Static Web App with OPENAI_API_KEY app setting
 - Created `infra/main.bicepparam` — parameter defaults file

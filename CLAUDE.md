@@ -19,7 +19,8 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 - `src/lib/api.ts` — API client (calls `/api/transcribe`)
 - `src/lib/storage.ts` — localStorage CRUD for memos
 - `src/types.ts` — Shared TypeScript interfaces
-- `api/src/functions/transcribe.ts` — Whisper API proxy function
+- `src/version.ts` — App version constant (displayed in header)
+- `api/src/functions/transcribe.ts` — Azure Speech Service proxy function
 - `vite.config.ts` — Vite config with dev proxy to Azure Functions
 - `staticwebapp.config.json` — Azure SWA routing
 - `infra/main.bicep` — Bicep template for Azure Static Web App
