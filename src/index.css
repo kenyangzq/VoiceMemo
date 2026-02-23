@@ -50,6 +50,12 @@ body {
   letter-spacing: -0.02em;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .version {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -57,6 +63,27 @@ body {
   padding: 2px 8px;
   background: var(--surface);
   border-radius: 12px;
+}
+
+.language-selector {
+  font-size: 0.75rem;
+  color: var(--text);
+  font-weight: 500;
+  padding: 4px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.language-selector:hover {
+  background: var(--surface-hover);
+}
+
+.language-selector:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .app-main {
@@ -281,6 +308,21 @@ body {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+.append-btn {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s;
+}
+
+.append-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
 .memo-view-meta {
   color: var(--text-muted);
   font-size: 0.8rem;
@@ -318,6 +360,34 @@ body {
   display: block;
   margin-top: 4px;
   font-size: 0.75rem;
+}
+
+/* Segment count display */
+.memo-segments {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Append mode header */
+.append-mode-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  margin-bottom: 16px;
+}
+
+.append-mode-title {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Edit button */

@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { storage } from '../lib/storage';
-import type { Memo } from '../types';
+import type { Memo, Language } from '../types';
 
 interface Props {
   memo: Memo;
   onDelete: () => void;
   onBack: () => void;
   onUpdate: () => void;
+  onAppendRecording?: () => void;
+  language?: Language;
 }
 
-export function MemoView({ memo, onDelete, onBack, onUpdate }: Props) {
+export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
@@ -91,6 +93,11 @@ export function MemoView({ memo, onDelete, onBack, onUpdate }: Props) {
             Edit
           </button>
         )}
+        {onAppendRecording && !editing && (
+          <button className="append-btn" onClick={onAppendRecording}>
+            + Add Recording
+          </button>
+        )}
         <button className="delete-btn" onClick={handleDelete}>
           Delete
         </button>
@@ -101,6 +108,9 @@ export function MemoView({ memo, onDelete, onBack, onUpdate }: Props) {
         <span className="memo-view-date-time">
           {dt.date} at {dt.time}
         </span>
+        {memo.segmentCount && memo.segmentCount > 1 && (
+          <span className="memo-segments">{memo.segmentCount} recordings</span>
+        )}
       </div>
 
       {/* Tags display */}

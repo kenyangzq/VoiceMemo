@@ -38,4 +38,23 @@ function getAllTags(): string[] {
   return Array.from(tags).sort();
 }
 
-export const storage = { getAll, save, get, remove, update, getAllTags };
+function append(id: string, additionalContent: string, additionalDuration: number): Memo | undefined {
+  const memos = getAll();
+  const index = memos.findIndex((m) => m.id === id);
+  if (index === -1) return undefined;
+
+  const existing = memos[index];
+  const separator = existing.content.endsWith('\n') ? '\n\n' : '\n\n';
+  const updated: Memo = {
+    ...existing,
+    content: existing.content + separator + additionalContent,
+    duration: existing.duration + additionalDuration,
+    segmentCount: (existing.segmentCount || 1) + 1,
+  };
+
+  memos[index] = updated;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
+  return updated;
+}
+
+export const storage = { getAll, save, get, remove, update, getAllTags, append };

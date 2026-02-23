@@ -2,13 +2,15 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { AudioRecorder } from '../lib/audio';
 import { transcribe } from '../lib/api';
 import { storage } from '../lib/storage';
-import type { Memo } from '../types';
+import type { Memo, Language } from '../types';
 
 interface Props {
   onMemoSaved: () => void;
+  language: Language;
+  memoId?: string; // If provided, append to existing memo instead of creating new
 }
 
-export function Recorder({ onMemoSaved }: Props) {
+export function Recorder({ onMemoSaved, language, memoId }: Props) {
   const [recording, setRecording] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -75,7 +77,7 @@ export function Recorder({ onMemoSaved }: Props) {
       }
 
       console.log('[Recorder] Starting transcription...');
-      const text = await transcribe(blob);
+      const text = await transcribe(blob, language);
       console.log('[Recorder] Transcription result:', {
         textLength: text.length,
         textPreview: text.slice(0, 100),
@@ -85,16 +87,25 @@ export function Recorder({ onMemoSaved }: Props) {
         throw new Error('No speech was detected in the recording. Please try speaking more clearly.');
       }
 
-      const memo: Memo = {
-        id: crypto.randomUUID(),
-        title: text.slice(0, 60) + (text.length > 60 ? '...' : ''),
-        content: text,
-        createdAt: new Date().toISOString(),
-        duration,
-        tags: [],
-      };
-
-      storage.save(memo);
+      if (memoId) {
+        // Append to existing memo
+        const updated = storage.append(memoId, text, duration);
+        if (!updated) {
+          throw new Error('Memo not found');
+        }
+      } else {
+        // Create new memo
+        const memo: Memo = {
+          id: crypto.randomUUID(),
+          title: text.slice(0, 60) + (text.length > 60 ? '...' : ''),
+          content: text,
+          createdAt: new Date().toISOString(),
+          duration,
+          tags: [],
+          segmentCount: 1,
+        };
+        storage.save(memo);
+      }
       onMemoSaved();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transcription failed';

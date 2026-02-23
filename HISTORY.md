@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-02-23: Add Chinese language support for voice transcription
+- Added `Language` type (`'en-US' | 'zh-CN'`) to `src/types.ts`
+- Created `src/lib/settings.ts` — localStorage utility for persisting language preference
+- Updated `api/src/functions/transcribe.ts` — accepts optional `language` form field for Azure Speech Service
+- Updated `src/lib/api.ts` — passes `language` parameter to transcription endpoint
+- Created `src/components/LanguageSelector.tsx` — dropdown component for language selection (English/中文)
+- Updated `src/components/App.tsx` — adds language state, integrates LanguageSelector in header
+- Updated `src/components/Recorder.tsx` — accepts and passes `language` prop to transcription API
+- Updated `src/index.css` — added styles for `.language-selector` and `.header-controls`
+- Language selection persists in localStorage, defaults to English
+
 ## 2026-02-23: Add version bump to deployment workflow
 - Updated `CLAUDE.md` - added step 1 to bump version in `src/version.ts` before each commit
 - Bumped version to 1.0.1 in `src/version.ts`

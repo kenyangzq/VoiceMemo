@@ -32,11 +32,13 @@ app.http('transcribe', {
     try {
       const formData = await request.formData();
       const audioFile = formData.get('audio');
+      const language = formData.get('language') as string || 'en-US';
 
       log(context, 'Received form data', {
         hasAudioFile: !!audioFile,
         audioFileType: audioFile instanceof File ? audioFile.type : typeof audioFile,
         isBlob: audioFile instanceof Blob,
+        language,
       });
 
       if (!audioFile || !(audioFile instanceof Blob)) {
@@ -76,7 +78,7 @@ app.http('transcribe', {
       // Configure speech recognition
       log(context, 'Configuring speech recognition');
       const speechConfig = sdk.SpeechConfig.fromSubscription(speechKey, speechRegion);
-      speechConfig.speechRecognitionLanguage = 'en-US';
+      speechConfig.speechRecognitionLanguage = language;
 
       // Create push stream for WAV audio (PCM 16kHz, 16-bit, mono)
       log(context, 'Creating push audio stream for WAV format');

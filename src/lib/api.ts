@@ -1,11 +1,15 @@
-export async function transcribe(audioBlob: Blob): Promise<string> {
+import type { Language } from '../types';
+
+export async function transcribe(audioBlob: Blob, language: Language = 'en-US'): Promise<string> {
   console.log('[API] Starting transcription request', {
     blobSize: audioBlob.size,
     blobType: audioBlob.type,
+    language,
   });
 
   const formData = new FormData();
   formData.append('audio', audioBlob, 'recording.webm');
+  formData.append('language', language);
 
   const startTime = Date.now();
 
