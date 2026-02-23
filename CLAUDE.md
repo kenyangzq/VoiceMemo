@@ -41,12 +41,16 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 ## Deployment Workflow
 **CRITICAL - NEVER FORGET**: After completing any unit of work (bug fix, feature, refactor), ALWAYS:
 
-1. Update project documentation:
+1. Bump version:
+   - `src/version.ts` - increment version number (use semantic versioning)
+   - `package.json` - keep in sync with src/version.ts
+
+2. Update project documentation:
    - `HISTORY.md` - append changelog entry (append-only, newest first)
    - `CLAUDE.md` - if architecture/dependencies/patterns changed
 
-2. Commit and push changes:
-   - `git add` the changed files (including documentation)
+3. Commit and push changes:
+   - `git add` the changed files (including version and docs)
    - `git commit` with descriptive message
    - `git push origin main` to trigger deployment via GitHub Actions
 

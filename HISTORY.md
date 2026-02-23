@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-02-23: Add version bump to deployment workflow
+- Updated `CLAUDE.md` - added step 1 to bump version in `src/version.ts` before each commit
+- Bumped version to 1.0.1 in `src/version.ts`
+
 ## 2026-02-23: Update CLAUDE.md deployment workflow
 - Enhanced Deployment Workflow section to explicitly mention updating HISTORY.md and CLAUDE.md before committing
 - Added "CRITICAL - NEVER FORGET" emphasis to ensure documentation updates aren't missed
