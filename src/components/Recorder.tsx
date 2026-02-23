@@ -49,7 +49,41 @@ export function Recorder({ onMemoSaved }: Props) {
         throw new Error('Recorder not initialized');
       }
       const { blob, duration } = await recorderRef.current.stop();
+
+      // Log audio details for debugging
+      console.log('[Recorder] Audio blob details:', {
+        size: blob.size,
+        type: blob.type,
+        duration,
+        isEmpty: blob.size === 0,
+      });
+
+      // Validate audio blob before sending
+      if (blob.size === 0) {
+        throw new Error('Recording produced empty audio file. Please try again.');
+      }
+
+      // Minimum duration check (0.5 seconds) to avoid accidental clicks
+      if (duration < 0.5) {
+        throw new Error('Recording too short. Please record for at least 0.5 seconds.');
+      }
+
+      // Maximum file size check (25MB is Azure Speech limit)
+      const MAX_SIZE = 25 * 1024 * 1024;
+      if (blob.size > MAX_SIZE) {
+        throw new Error('Recording too large. Please keep recordings under 25MB.');
+      }
+
+      console.log('[Recorder] Starting transcription...');
       const text = await transcribe(blob);
+      console.log('[Recorder] Transcription result:', {
+        textLength: text.length,
+        textPreview: text.slice(0, 100),
+      });
+
+      if (!text || text.trim().length === 0) {
+        throw new Error('No speech was detected in the recording. Please try speaking more clearly.');
+      }
 
       const memo: Memo = {
         id: crypto.randomUUID(),
@@ -64,7 +98,11 @@ export function Recorder({ onMemoSaved }: Props) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transcription failed';
       setError(msg);
-      console.error(err);
+      console.error('[Recorder] Error details:', {
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        name: err instanceof Error ? err.name : undefined,
+      });
     } finally {
       setProcessing(false);
     }
