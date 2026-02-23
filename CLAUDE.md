@@ -39,9 +39,15 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 - Dark theme by default
 
 ## Deployment Workflow
-**IMPORTANT**: After completing any unit of work (bug fix, feature, refactor), always:
-1. `git add` the changed files
-2. `git commit` with descriptive message
-3. `git push origin main` to trigger deployment via GitHub Actions
+**CRITICAL - NEVER FORGET**: After completing any unit of work (bug fix, feature, refactor), ALWAYS:
+
+1. Update project documentation:
+   - `HISTORY.md` - append changelog entry (append-only, newest first)
+   - `CLAUDE.md` - if architecture/dependencies/patterns changed
+
+2. Commit and push changes:
+   - `git add` the changed files (including documentation)
+   - `git commit` with descriptive message
+   - `git push origin main` to trigger deployment via GitHub Actions
 
 This ensures changes are deployed to Azure Static Web App automatically.

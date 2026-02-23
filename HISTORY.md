@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-02-23: Update CLAUDE.md deployment workflow
+- Enhanced Deployment Workflow section to explicitly mention updating HISTORY.md and CLAUDE.md before committing
+- Added "CRITICAL - NEVER FORGET" emphasis to ensure documentation updates aren't missed
+
+## 2026-02-23: Add search feature to memo list
+- Updated `src/components/MemoList.tsx` — added search state and filtering logic
+- Search filters by both title and content (case-insensitive)
+- Search works in combination with existing tag filters
+- Added search input with clear button UI
+- Updated `src/index.css` — added `.search-container`, `.search-input`, `.search-clear` styles
+- Empty state now shows "No memos match [query]" when search has no results
+
 ## 2026-02-23: Add version display to app
 - Created `src/version.ts` — exports version constant
 - Updated `package.json` version from 0.0.0 to 1.0.0

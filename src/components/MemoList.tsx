@@ -10,10 +10,16 @@ interface Props {
 
 export function MemoList({ memos, selectedId, onSelect, allTags }: Props) {
   const [filterTag, setFilterTag] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredMemos = filterTag
-    ? memos.filter((m) => m.tags.includes(filterTag))
-    : memos;
+  const filteredMemos = memos.filter((m) => {
+    const matchesTag = !filterTag || m.tags.includes(filterTag);
+    const matchesSearch =
+      !searchQuery ||
+      m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.content.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTag && matchesSearch;
+  });
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -33,6 +39,24 @@ export function MemoList({ memos, selectedId, onSelect, allTags }: Props) {
 
   return (
     <>
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search memos..."
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button
+            className="search-clear"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+      </div>
       {allTags.length > 0 && (
         <div className="tag-filter">
           <button
@@ -54,7 +78,11 @@ export function MemoList({ memos, selectedId, onSelect, allTags }: Props) {
       )}
       {filteredMemos.length === 0 ? (
         <div className="memo-list-empty">
-          {filterTag ? `No memos tagged "${filterTag}"` : 'No memos yet. Record one!'}
+          {searchQuery
+            ? `No memos match "${searchQuery}"`
+            : filterTag
+              ? `No memos tagged "${filterTag}"`
+              : 'No memos yet. Record one!'}
         </div>
       ) : (
         <ul className="memo-list">
