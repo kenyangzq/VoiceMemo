@@ -11,16 +11,17 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 - **Deployment**: Azure Static Web App (planned)
 
 ## Key Files
-- `src/components/App.tsx` — Main app shell, routing between list/view, language state
+- `src/components/App.tsx` — Main app shell, routing between list/view, language and view mode state
 - `src/components/Recorder.tsx` — Mic recording UI + transcription flow
-- `src/components/MemoList.tsx` — Chronological memo list
+- `src/components/MemoList.tsx` — Memo list with three view modes: flat, tag folders, date folders
 - `src/components/MemoView.tsx` — Single memo viewer (rendered markdown)
 - `src/components/LanguageSelector.tsx` — Language dropdown (English/中文)
+- `src/components/ViewToggle.tsx` — Toggle for switching between flat, tag-folders, and date-folders views
 - `src/lib/audio.ts` — MediaRecorder API wrapper
 - `src/lib/api.ts` — API client (calls `/api/transcribe`)
 - `src/lib/storage.ts` — localStorage CRUD for memos
-- `src/lib/settings.ts` — localStorage for language preference
-- `src/types.ts` — Shared TypeScript interfaces including `Language` type
+- `src/lib/settings.ts` — localStorage for language and view mode preferences
+- `src/types.ts` — Shared TypeScript interfaces including `Language` and `ViewMode` types
 - `src/version.ts` — App version constant (displayed in header)
 - `api/src/functions/transcribe.ts` — Azure Speech Service proxy function (supports language parameter)
 - `vite.config.ts` — Vite config with dev proxy to Azure Functions

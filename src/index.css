@@ -521,6 +521,146 @@ body {
   color: white;
 }
 
+/* View toggle */
+.view-toggle {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+}
+
+.view-toggle-btn:hover {
+  color: var(--text);
+}
+
+.view-toggle-btn.active {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.view-toggle-icon {
+  font-size: 0.9rem;
+}
+
+.view-toggle-label {
+  font-weight: 500;
+}
+
+@media (max-width: 400px) {
+  .view-toggle-label {
+    display: none;
+  }
+}
+
+/* Folder view */
+.folder-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folder-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.folder-control-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.15s;
+}
+
+.folder-control-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.folders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folder {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.folder-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.folder-header:hover {
+  background: var(--surface-hover);
+}
+
+.folder-icon {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  transition: transform 0.15s;
+  width: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.folder-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.folder-name {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.folder-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.memo-list-nested {
+  padding: 0 8px 8px;
+  gap: 6px;
+}
+
+.memo-list-nested .memo-item {
+  border-radius: 8px;
+}
+
 /* Edit form */
 .memo-edit-form {
   background: var(--surface);

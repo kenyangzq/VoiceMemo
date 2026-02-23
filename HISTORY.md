@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-02-23: Add folder structure for memo organization
+- Added `ViewMode` type (`'flat' | 'tag-folders' | 'date-folders'`) to `src/types.ts`
+- Updated `src/lib/settings.ts` — localStorage persistence for view mode preference
+- Created `src/components/ViewToggle.tsx` — toggle button in header for switching view modes
+- Rewrote `src/components/MemoList.tsx` — now supports hierarchical folder views:
+  - **Flat view** (default): simple chronological list
+  - **Tag folders**: memos grouped by tags, with "Untagged" for items without tags
+  - **Date folders**: memos grouped by Today, Yesterday, This Week, This Month, and older by month
+- Added expand/collapse functionality for folders with Expand All/Collapse All controls
+- Updated `src/components/App.tsx` — integrates ViewToggle in header and passes view mode to MemoList
+- Updated `src/index.css` — added styles for `.view-toggle`, `.folder-view`, `.folder`, `.folder-header`, etc.
+- View mode selection persists in localStorage
+- Version bumped to 1.2.0
+
 ## 2026-02-23: Fix audio processing and Chinese language detection
 - Fixed zh-CN language parameter being treated as falsy in transcribe API
 - Added explicit language validation in `api/src/functions/transcribe.ts`

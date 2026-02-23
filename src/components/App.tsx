@@ -3,10 +3,11 @@ import { Recorder } from './Recorder';
 import { MemoList } from './MemoList';
 import { MemoView } from './MemoView';
 import { LanguageSelector } from './LanguageSelector';
+import { ViewToggle } from './ViewToggle';
 import { storage } from '../lib/storage';
 import { settings } from '../lib/settings';
 import { VERSION } from '../version';
-import type { Memo, Language } from '../types';
+import type { Memo, Language, ViewMode } from '../types';
 
 export function App() {
   const [memos, setMemos] = useState<Memo[]>(() => storage.getAll());
@@ -14,10 +15,16 @@ export function App() {
   const [appendMemoId, setAppendMemoId] = useState<string | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
   const [language, setLanguage] = useState<Language>(() => settings.getLanguage());
+  const [viewMode, setViewMode] = useState<ViewMode>(() => settings.getViewMode());
 
   const handleLanguageChange = useCallback((newLanguage: Language) => {
     setLanguage(newLanguage);
     settings.setLanguage(newLanguage);
+  }, []);
+
+  const handleViewModeChange = useCallback((newViewMode: ViewMode) => {
+    setViewMode(newViewMode);
+    settings.setViewMode(newViewMode);
   }, []);
 
   useEffect(() => {
@@ -39,6 +46,7 @@ export function App() {
         <header className="app-header">
           <h1>VoiceMemo</h1>
           <div className="header-controls">
+            <ViewToggle value={viewMode} onChange={handleViewModeChange} />
             <LanguageSelector value={language} onChange={handleLanguageChange} />
             <span className="version">v{VERSION}</span>
           </div>
@@ -70,6 +78,7 @@ export function App() {
       <header className="app-header">
         <h1>VoiceMemo</h1>
         <div className="header-controls">
+          <ViewToggle value={viewMode} onChange={handleViewModeChange} />
           <LanguageSelector value={language} onChange={handleLanguageChange} />
           <span className="version">v{VERSION}</span>
         </div>
@@ -96,6 +105,7 @@ export function App() {
               selectedId={selectedId}
               onSelect={setSelectedId}
               allTags={allTags}
+              viewMode={viewMode}
             />
           </>
         )}

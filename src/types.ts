@@ -1,5 +1,7 @@
 export type Language = 'en-US' | 'zh-CN';
 
+export type ViewMode = 'flat' | 'tag-folders' | 'date-folders';
+
 export interface Memo {
   id: string;
   title: string;
