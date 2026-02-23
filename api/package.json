@@ -9,7 +9,8 @@
     "dev": "npm run build && npm start"
   },
   "dependencies": {
-    "@azure/functions": "^4.6.0"
+    "@azure/functions": "^4.6.0",
+    "microsoft-cognitiveservices-speech-sdk": "^1.40.0"
   },
   "devDependencies": {
     "typescript": "~5.9.3",

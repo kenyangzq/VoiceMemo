@@ -20,15 +20,23 @@ param location string = 'eastus2'
 ])
 param sku string = 'Free'
 
-@description('OpenAI API key for Whisper transcription')
-@secure()
-param openAiApiKey string
-
 @description('GitHub repository URL (e.g. https://github.com/user/VoiceMemo)')
 param repositoryUrl string = ''
 
 @description('GitHub branch for deployment')
 param repositoryBranch string = 'main'
+
+resource speechService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
+  name: '${staticWebAppName}-speech'
+  location: location
+  sku: {
+    name: 'S0'
+  }
+  kind: 'SpeechServices'
+  properties: {
+    publicNetworkAccess: 'Enabled'
+  }
+}
 
 resource staticWebApp 'Microsoft.Web/staticSites@2023-12-01' = {
   name: staticWebAppName
@@ -52,7 +60,8 @@ resource appSettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
   parent: staticWebApp
   name: 'appsettings'
   properties: {
-    OPENAI_API_KEY: openAiApiKey
+    AZURE_SPEECH_KEY: speechService.listKeys().key1
+    AZURE_SPEECH_REGION: location
   }
 }
 
@@ -61,6 +70,3 @@ output defaultHostname string = staticWebApp.properties.defaultHostname
 
 @description('Static Web App resource ID')
 output staticWebAppId string = staticWebApp.id
-
-@description('Deployment token for GitHub Actions')
-output deploymentToken string = staticWebApp.listSecrets().properties.apiKey
