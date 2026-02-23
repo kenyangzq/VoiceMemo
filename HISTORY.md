@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-02-23: Fix mobile memo view header layout
+- Changed `.memo-view-header` from `justify-content: space-between` to flexbox with `gap` and `flex-wrap`
+- Buttons now wrap gracefully on narrow mobile screens instead of getting cramped
+- Added mobile-specific button padding adjustments for better touch targets
+- Adjusted share menu positioning for mobile viewport
+- Version bumped to 1.4.1
+
 ## 2026-02-23: Add Apple Notes integration (Share to Notes)
 - Added Share button in MemoView header with dropdown menu for multiple export options
 - **Web Share API**: On iOS Safari and Android, opens native share sheet to select Notes app

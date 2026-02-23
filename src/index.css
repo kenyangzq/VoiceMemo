@@ -286,8 +286,13 @@ body {
 
 .memo-view-header {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 16px;
+}
+
+.memo-view-header > * {
+  flex-shrink: 0;
 }
 
 .back-btn,
@@ -330,6 +335,14 @@ body {
 /* Share button and menu */
 .share-container {
   position: relative;
+}
+
+/* On mobile, ensure share menu stays within viewport */
+@media (max-width: 480px) {
+  .share-menu {
+    right: -8px;
+    min-width: 180px;
+  }
 }
 
 .share-btn {
@@ -651,6 +664,22 @@ body {
 
   .app-header h1 {
     font-size: 1rem;
+  }
+
+  /* Memo view header buttons - smaller on mobile */
+  .memo-view-header .back-btn,
+  .memo-view-header .edit-btn,
+  .memo-view-header .delete-btn,
+  .memo-view-header .share-btn,
+  .memo-view-header .append-btn,
+  .memo-view-header .form-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  /* Back button especially compact */
+  .memo-view-header .back-btn {
+    padding: 8px 10px;
   }
 }
 
