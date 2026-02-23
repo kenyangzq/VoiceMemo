@@ -1,7 +1,11 @@
 export class AudioRecorder {
   private mediaRecorder: MediaRecorder | null = null;
   private chunks: Blob[] = [];
-  private startTime = 0;
+  private startTime: number = 0;
+
+  constructor() {
+    // No initialization needed - lazy init in start()
+  }
 
   async start(): Promise<void> {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

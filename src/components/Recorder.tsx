@@ -13,8 +13,8 @@ export function Recorder({ onMemoSaved }: Props) {
   const [processing, setProcessing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const recorderRef = useRef(new AudioRecorder());
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const timerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     return () => {
@@ -25,6 +25,9 @@ export function Recorder({ onMemoSaved }: Props) {
   const startRecording = useCallback(async () => {
     try {
       setError(null);
+      if (!recorderRef.current) {
+        recorderRef.current = new AudioRecorder();
+      }
       await recorderRef.current.start();
       setRecording(true);
       setElapsed(0);
@@ -42,6 +45,9 @@ export function Recorder({ onMemoSaved }: Props) {
     setError(null);
 
     try {
+      if (!recorderRef.current) {
+        throw new Error('Recorder not initialized');
+      }
       const { blob, duration } = await recorderRef.current.stop();
       const text = await transcribe(blob);
 
