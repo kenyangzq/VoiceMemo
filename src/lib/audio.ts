@@ -12,6 +12,15 @@ function audioBufferToWav(audioBuffer: AudioBuffer): Blob {
   const dataSize = samples * blockAlign;
   const bufferSize = 44 + dataSize;
 
+  console.log('[audioBufferToWav] Creating WAV file', {
+    numChannels,
+    sampleRate,
+    samples,
+    dataSize,
+    bitDepth,
+    expectedDuration: samples / sampleRate,
+  });
+
   const arrayBuffer = new ArrayBuffer(bufferSize);
   const view = new DataView(arrayBuffer);
 
@@ -62,12 +71,47 @@ async function convertToWav(mediaBlob: Blob, targetSampleRate = 16000): Promise<
   try {
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-    // Resample if needed (decodeAudioData already resamples to targetSampleRate)
-    // Just convert to WAV format
+    // Verify the actual sample rate after decoding
+    console.log('[convertToWav] AudioBuffer details', {
+      targetSampleRate,
+      actualSampleRate: audioBuffer.sampleRate,
+      numberOfChannels: audioBuffer.numberOfChannels,
+      duration: audioBuffer.duration,
+      length: audioBuffer.length,
+    });
+
+    // If the browser didn't use our target sample rate, we need to resample
+    if (audioBuffer.sampleRate !== targetSampleRate) {
+      console.warn('[convertToWav] Sample rate mismatch, resampling...', {
+        from: audioBuffer.sampleRate,
+        to: targetSampleRate,
+      });
+      return audioBufferToWav(resampleAudioBuffer(audioBuffer, targetSampleRate));
+    }
+
+    // Convert to WAV format
     return audioBufferToWav(audioBuffer);
   } finally {
     await audioContext.close();
   }
+}
+
+// Resample AudioBuffer to target sample rate using offline audio context
+function resampleAudioBuffer(audioBuffer: AudioBuffer, targetSampleRate: number): AudioBuffer {
+  const offlineContext = new OfflineAudioContext(
+    audioBuffer.numberOfChannels,
+    (audioBuffer.duration * targetSampleRate) | 0,
+    targetSampleRate
+  );
+
+  const bufferSource = offlineContext.createBufferSource();
+  bufferSource.buffer = audioBuffer;
+  bufferSource.connect(offlineContext.destination);
+  bufferSource.start(0);
+
+  // Render the resampled audio
+  const renderedBuffer = offlineContext.startRendering();
+  return renderedBuffer as unknown as AudioBuffer; // Type assertion for compatibility
 }
 
 export class AudioRecorder {

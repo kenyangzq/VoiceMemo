@@ -32,13 +32,17 @@ app.http('transcribe', {
     try {
       const formData = await request.formData();
       const audioFile = formData.get('audio');
-      const language = formData.get('language') as string || 'en-US';
+      const rawLanguage = formData.get('language') as string;
+
+      // Explicitly validate and set language - ensure zh-CN is not treated as falsy
+      const language = (rawLanguage === 'zh-CN' || rawLanguage === 'en-US') ? rawLanguage : 'en-US';
 
       log(context, 'Received form data', {
         hasAudioFile: !!audioFile,
         audioFileType: audioFile instanceof File ? audioFile.type : typeof audioFile,
         isBlob: audioFile instanceof Blob,
-        language,
+        rawLanguage,
+        finalLanguage: language,
       });
 
       if (!audioFile || !(audioFile instanceof Blob)) {
@@ -76,19 +80,62 @@ app.http('transcribe', {
       }
 
       // Configure speech recognition
-      log(context, 'Configuring speech recognition');
+      log(context, 'Configuring speech recognition', { language });
       const speechConfig = sdk.SpeechConfig.fromSubscription(speechKey, speechRegion);
       speechConfig.speechRecognitionLanguage = language;
 
-      // Create push stream for WAV audio (PCM 16kHz, 16-bit, mono)
-      log(context, 'Creating push audio stream for WAV format');
-      const pushStream = sdk.AudioInputStream.createPushStream(
-        sdk.AudioStreamFormat.getWaveFormatPCM(16000, 16, 1)
-      );
+      log(context, 'Speech config set', {
+        recognitionLanguage: speechConfig.speechRecognitionLanguage,
+      });
 
       // WAV files have a 44-byte header, skip it to get raw PCM data
       const WAV_HEADER_SIZE = 44;
+
+      // Validate WAV header before skipping
+      if (arrayBuffer.byteLength < WAV_HEADER_SIZE) {
+        log(context, 'ERROR: Audio file too small to be valid WAV');
+        return { status: 400, body: 'Audio file too small to be valid WAV format' };
+      }
+
+      // Check RIFF header
+      const view = new DataView(arrayBuffer);
+      const riff = String.fromCharCode(
+        view.getUint8(0),
+        view.getUint8(1),
+        view.getUint8(2),
+        view.getUint8(3)
+      );
+      const wave = String.fromCharCode(
+        view.getUint8(8),
+        view.getUint8(9),
+        view.getUint8(10),
+        view.getUint8(11)
+      );
+
+      log(context, 'WAV header validation', {
+        riffHeader: riff,
+        waveHeader: wave,
+        isValid: riff === 'RIFF' && wave === 'WAVE',
+      });
+
+      // Read actual format from WAV header
+      const channels = view.getUint16(22, true);
+      const sampleRateFromHeader = view.getUint32(24, true);
+      const bitsPerSample = view.getUint16(34, true);
+
+      log(context, 'WAV format from header', {
+        channels,
+        sampleRate: sampleRateFromHeader,
+        bitsPerSample,
+      });
+
       const pcmData = arrayBuffer.slice(WAV_HEADER_SIZE);
+
+      // Create push stream with actual format from WAV header
+      log(context, 'Creating push audio stream with format from WAV header');
+      const pushStream = sdk.AudioInputStream.createPushStream(
+        sdk.AudioStreamFormat.getWaveFormatPCM(sampleRateFromHeader, bitsPerSample, channels)
+      );
 
       // Write audio data to stream (chunked to avoid overflow)
       const chunkSize = 4096;

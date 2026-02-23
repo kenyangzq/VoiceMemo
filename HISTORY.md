@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-02-23: Fix audio processing and Chinese language detection
+- Fixed zh-CN language parameter being treated as falsy in transcribe API
+- Added explicit language validation in `api/src/functions/transcribe.ts`
+- Added comprehensive WAV header validation (RIFF/WAVE format check)
+- Fixed audio format mismatch - now reads actual format from WAV header (sample rate, channels, bit depth)
+- Added resampling logic in `src/lib/audio.ts` for browsers that don't respect target sample rate
+- Changed audio filename from `.webm` to `.wav` in API call
+- Added extensive logging for debugging audio pipeline issues
+- Version bumped to 1.1.1
+
 ## 2026-02-23: Add Chinese language support for voice transcription
 - Added `Language` type (`'en-US' | 'zh-CN'`) to `src/types.ts`
 - Created `src/lib/settings.ts` — localStorage utility for persisting language preference

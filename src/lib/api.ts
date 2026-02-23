@@ -8,7 +8,7 @@ export async function transcribe(audioBlob: Blob, language: Language = 'en-US'):
   });
 
   const formData = new FormData();
-  formData.append('audio', audioBlob, 'recording.webm');
+  formData.append('audio', audioBlob, 'recording.wav');
   formData.append('language', language);
 
   const startTime = Date.now();
