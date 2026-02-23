@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Recorder } from './Recorder';
 import { MemoList } from './MemoList';
 import { MemoView } from './MemoView';
@@ -9,9 +9,15 @@ import type { Memo } from '../types';
 export function App() {
   const [memos, setMemos] = useState<Memo[]>(() => storage.getAll());
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [allTags, setAllTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    setAllTags(storage.getAllTags());
+  }, [memos]);
 
   const refresh = useCallback(() => {
     setMemos(storage.getAll());
+    setAllTags(storage.getAllTags());
   }, []);
 
   const selectedMemo = selectedId ? memos.find((m) => m.id === selectedId) : null;
@@ -32,11 +38,17 @@ export function App() {
               refresh();
             }}
             onBack={() => setSelectedId(null)}
+            onUpdate={refresh}
           />
         ) : (
           <>
             <Recorder onMemoSaved={refresh} />
-            <MemoList memos={memos} selectedId={selectedId} onSelect={setSelectedId} />
+            <MemoList
+              memos={memos}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              allTags={allTags}
+            />
           </>
         )}
       </main>

@@ -4,4 +4,5 @@ export interface Memo {
   content: string; // markdown
   createdAt: string; // ISO 8601
   duration: number; // seconds
+  tags: string[];
 }

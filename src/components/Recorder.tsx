@@ -91,6 +91,7 @@ export function Recorder({ onMemoSaved }: Props) {
         content: text,
         createdAt: new Date().toISOString(),
         duration,
+        tags: [],
       };
 
       storage.save(memo);

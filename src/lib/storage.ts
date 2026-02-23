@@ -23,4 +23,19 @@ function remove(id: string): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
 }
 
-export const storage = { getAll, save, get, remove };
+function update(updatedMemo: Memo): void {
+  const memos = getAll();
+  const index = memos.findIndex((m) => m.id === updatedMemo.id);
+  if (index !== -1) {
+    memos[index] = updatedMemo;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
+  }
+}
+
+function getAllTags(): string[] {
+  const tags = new Set<string>();
+  getAll().forEach((m) => m.tags?.forEach((t) => tags.add(t)));
+  return Array.from(tags).sort();
+}
+
+export const storage = { getAll, save, get, remove, update, getAllTags };
