@@ -10,6 +10,7 @@ const DEFAULT_OBSIDIAN_SETTINGS: ObsidianSettings = {
   enabled: false,
   folderPath: 'VoiceMemos',
   syncOnSave: true,
+  organization: 'flat',
 };
 
 export const settings = {

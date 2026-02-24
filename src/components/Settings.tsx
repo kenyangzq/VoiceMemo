@@ -4,7 +4,7 @@ import {
   getGoogleDriveAuthUrl,
   checkGoogleDriveConnection,
 } from '../lib/api';
-import type { ObsidianSettings } from '../types';
+import type { ObsidianSettings, FolderOrganization } from '../types';
 
 interface SettingsProps {
   onBack: () => void;
@@ -70,6 +70,12 @@ export function Settings({ onBack }: SettingsProps) {
 
   const handleToggleSyncOnSave = (syncOnSave: boolean) => {
     const newSettings = { ...obsidianSettings, syncOnSave };
+    setObsidianSettings(newSettings);
+    settings.setObsidianSettings(newSettings);
+  };
+
+  const handleOrganizationChange = (organization: FolderOrganization) => {
+    const newSettings = { ...obsidianSettings, organization };
     setObsidianSettings(newSettings);
     settings.setObsidianSettings(newSettings);
   };
@@ -160,7 +166,7 @@ export function Settings({ onBack }: SettingsProps) {
             <div className="settings-item-label">
               <span>Drive Folder</span>
               <span className="settings-item-hint">
-                Folder name in Google Drive (will be created if it doesn't exist)
+                Base folder path in Google Drive (e.g., Obsidian/Vault/Memos)
               </span>
             </div>
             <input
@@ -171,6 +177,27 @@ export function Settings({ onBack }: SettingsProps) {
               className="settings-input"
               placeholder="VoiceMemos"
             />
+          </div>
+
+          {/* Folder Organization */}
+          <div className="settings-item">
+            <div className="settings-item-label">
+              <span>Folder Organization</span>
+              <span className="settings-item-hint">
+                How to organize memos in subfolders
+              </span>
+            </div>
+            <select
+              value={obsidianSettings.organization || 'flat'}
+              onChange={(e) => handleOrganizationChange(e.target.value as FolderOrganization)}
+              disabled={!isConnected || !obsidianSettings.enabled}
+              className="settings-select"
+            >
+              <option value="flat">Flat (all in base folder)</option>
+              <option value="year-month">By Year/Month (2025/02)</option>
+              <option value="date">By Date (2025-02-24)</option>
+              <option value="tag">By First Tag</option>
+            </select>
           </div>
 
           {!isConnected && (

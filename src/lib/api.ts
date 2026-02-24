@@ -1,4 +1,4 @@
-import type { Language } from '../types';
+import type { Language, FolderOrganization, Memo } from '../types';
 import { VERSION } from '../version';
 
 export async function transcribe(audioBlob: Blob, language: Language = 'en-US'): Promise<string> {
@@ -100,6 +100,29 @@ export async function writeMemoToDrive(params: {
   const data = await res.json() as { success: boolean; fileId: string; message: string };
   console.log('[API] Drive write successful', { fileId: data.fileId });
   return data;
+}
+
+// Get subfolder path based on organization mode
+export function getMemoSubfolder(memo: Memo, organization: FolderOrganization): string {
+  const date = new Date(memo.createdAt);
+
+  switch (organization) {
+    case 'year-month':
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${year}/${month}`;
+
+    case 'date':
+      return date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    case 'tag':
+      // Use first tag, or 'Untagged' if none
+      return memo.tags?.[0] || 'Untagged';
+
+    case 'flat':
+    default:
+      return '';
+  }
 }
 
 // Generate Obsidian-compatible markdown from memo

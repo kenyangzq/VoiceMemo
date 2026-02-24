@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-02-24: Add nested folder paths and organization modes
+
+- Added support for nested folder paths in Google Drive (e.g., `Obsidian/Vault/Memos`)
+- Implemented `resolveFolderPath()` helper in `google-drive-write.ts` to create folder hierarchy
+- Added `FolderOrganization` type with options: flat, year-month, date, tag
+- Added "Folder Organization" dropdown in Settings
+- Added `getMemoSubfolder()` function to generate subfolder paths based on organization mode
+- Updated `storage.ts` to combine base folder path with organization subfolder
+- Organization modes:
+  - Flat: All memos in base folder
+  - Year/Month: `2025/02/` subfolders
+  - Date: `2025-02-24/` subfolders
+  - Tag: First tag becomes subfolder (or "Untagged")
+- Updated Settings UI hint to clarify nested paths are supported
+- Version bumped to 1.9.0
+
 ## 2026-02-24: Add Obsidian sync via Google Drive
 - New Obsidian sync feature to automatically write memos to Google Drive as markdown
 - Created Azure Functions for Google Drive OAuth: `api/src/functions/google-drive-auth.ts` and `api/src/functions/google-drive-write.ts`

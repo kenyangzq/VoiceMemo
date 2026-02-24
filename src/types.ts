@@ -2,6 +2,8 @@ export type Language = 'en-US' | 'zh-CN';
 
 export type ViewMode = 'flat' | 'tag-folders' | 'date-folders';
 
+export type FolderOrganization = 'flat' | 'year-month' | 'date' | 'tag';
+
 export interface Memo {
   id: string;
   title: string;
@@ -16,4 +18,5 @@ export interface ObsidianSettings {
   enabled: boolean;
   folderPath: string;
   syncOnSave: boolean;
+  organization: FolderOrganization;
 }

@@ -1234,7 +1234,8 @@ body {
 }
 
 /* Settings input */
-.settings-input {
+.settings-input,
+.settings-select {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
@@ -1244,12 +1245,14 @@ body {
   min-width: 200px;
 }
 
-.settings-input:focus {
+.settings-input:focus,
+.settings-select:focus {
   outline: none;
   border-color: var(--accent);
 }
 
-.settings-input:disabled {
+.settings-input:disabled,
+.settings-select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

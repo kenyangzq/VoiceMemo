@@ -1,6 +1,6 @@
 import type { Memo } from '../types';
 import { settings } from './settings';
-import { writeMemoToDrive, generateObsidianMarkdown, generateMemoFilename } from './api';
+import { writeMemoToDrive, generateObsidianMarkdown, generateMemoFilename, getMemoSubfolder } from './api';
 
 const STORAGE_KEY = 'voicememo_memos';
 
@@ -16,13 +16,19 @@ async function syncMemoToDrive(memo: Memo): Promise<boolean> {
     const markdown = generateObsidianMarkdown(memo);
     const filename = generateMemoFilename(memo);
 
+    // Build full folder path: base folder + organization subfolder
+    const subfolder = getMemoSubfolder(memo, obsidianSettings.organization || 'flat');
+    const folderPath = subfolder
+      ? `${obsidianSettings.folderPath}/${subfolder}`.replace(/^\/+/, '').replace(/\/+/g, '/')
+      : obsidianSettings.folderPath;
+
     await writeMemoToDrive({
       filename,
       content: markdown,
-      folderPath: obsidianSettings.folderPath || undefined,
+      folderPath: folderPath || undefined,
     });
 
-    console.log('[Storage] Memo synced to Drive', { memoId: memo.id, filename });
+    console.log('[Storage] Memo synced to Drive', { memoId: memo.id, filename, folderPath });
     return true;
   } catch (err) {
     console.error('[Storage] Failed to sync memo to Drive', { error: err });

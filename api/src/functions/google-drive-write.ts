@@ -74,6 +74,62 @@ async function getAccessToken(userId: string, context: InvocationContext): Promi
   return tokens.access_token;
 }
 
+// Resolve a nested folder path, creating folders as needed
+// e.g., "Obsidian/Vault/Memos" creates each level
+async function resolveFolderPath(
+  drive: any,
+  folderPath: string,
+  context: InvocationContext
+): Promise<string | undefined> {
+  if (!folderPath?.trim()) return undefined;
+
+  // Split by forward slash, trim whitespace, filter empty segments
+  const segments = folderPath.split('/').map((s) => s.trim()).filter(Boolean);
+  if (segments.length === 0) return undefined;
+
+  let parentId: string | undefined = 'root'; // Start at Drive root
+  let currentFullPath = '';
+
+  for (const segment of segments) {
+    currentFullPath = currentFullPath ? `${currentFullPath}/${segment}` : segment;
+
+    // Escape single quotes in folder name for query
+    const escapedName = segment.replace(/'/g, "\\'");
+
+    // Search for this folder in parent
+    const q: string = parentId === 'root'
+      ? `name='${escapedName}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`
+      : `name='${escapedName}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+
+    const search = await drive.files.list({
+      q,
+      fields: 'files(id, name)',
+      pageSize: 10,
+    });
+
+    const existing = search.data.files?.[0] as { id?: string; name?: string } | undefined;
+
+    if (existing?.id) {
+      parentId = existing.id;
+      log(context, 'Found existing folder segment', { segment, fullPath: currentFullPath, id: parentId });
+    } else {
+      // Create this folder segment
+      const created: { data: { id?: string } } = await drive.files.create({
+        requestBody: {
+          name: segment,
+          mimeType: 'application/vnd.google-apps.folder',
+          parents: parentId ? [parentId] : undefined,
+        },
+        fields: 'id',
+      });
+      parentId = created.data.id || undefined;
+      log(context, 'Created folder segment', { segment, fullPath: currentFullPath, id: parentId });
+    }
+  }
+
+  return parentId;
+}
+
 app.http('googleDriveWrite', {
   methods: ['POST'],
   authLevel: 'anonymous',
@@ -120,41 +176,21 @@ app.http('googleDriveWrite', {
 
       const drive = google.drive({ version: 'v3', auth });
 
-      // Find or create the target folder
+      // Find or create the target folder (supports nested paths)
       let folderId: string | undefined;
 
       if (folderPath && folderPath.trim()) {
-        log(context, 'Looking for folder', { folderPath });
+        log(context, 'Resolving folder path', { folderPath });
 
         try {
-          // Search for folder by name in root
-          const folderSearch = await drive.files.list({
-            q: `name='${folderPath}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-            fields: 'files(id, name)',
-            pageSize: 10,
-          });
-
-          const existingFolder = folderSearch.data.files?.[0];
-
-          if (existingFolder?.id) {
-            folderId = existingFolder.id;
-            log(context, 'Found existing folder', { folderId });
+          folderId = await resolveFolderPath(drive, folderPath, context);
+          if (folderId) {
+            log(context, 'Folder resolved', { folderId });
           } else {
-            // Create new folder
-            log(context, 'Creating new folder');
-            const folder = await drive.files.create({
-              requestBody: {
-                name: folderPath,
-                mimeType: 'application/vnd.google-apps.folder',
-              },
-              fields: 'id',
-            });
-
-            folderId = folder.data.id || undefined;
-            log(context, 'Folder created', { folderId });
+            log(context, 'No folder path resolved, using root');
           }
         } catch (err) {
-          log(context, 'WARNING: Folder lookup/create failed, using root', {
+          log(context, 'WARNING: Folder resolution failed, using root', {
             error: err instanceof Error ? err.message : String(err),
           });
         }
