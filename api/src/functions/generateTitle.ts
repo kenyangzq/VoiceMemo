@@ -44,7 +44,11 @@ app.http('generateTitle', {
       if (!response.ok) {
         const errText = await response.text();
         log(context, 'Gemini API error', { status: response.status, body: errText });
-        return { status: 502, body: 'Title generation failed' };
+        return {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Title generation failed', geminiStatus: response.status, detail: errText }),
+        };
       }
 
       const data = await response.json() as {
@@ -68,8 +72,13 @@ app.http('generateTitle', {
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      log(context, 'ERROR', { message });
-      return { status: 500, body: `Title generation error: ${message}` };
+      const stack = err instanceof Error ? err.stack : undefined;
+      log(context, 'ERROR', { message, stack });
+      return {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: `Title generation error: ${message}`, stack }),
+      };
     }
   },
 });
