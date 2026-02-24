@@ -30,6 +30,17 @@ param repositoryBranch string = 'main'
 @description('Google Gemini API key for title generation')
 param geminiApiKey string = ''
 
+@secure()
+@description('Google Client ID for Drive OAuth')
+param googleClientId string = ''
+
+@secure()
+@description('Google Client Secret for Drive OAuth')
+param googleClientSecret string = ''
+
+@description('Frontend URL for OAuth redirect')
+param frontendUrl string = ''
+
 resource speechService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: '${staticWebAppName}-speech'
   location: location
@@ -67,6 +78,10 @@ resource appSettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
     AZURE_SPEECH_KEY: speechService.listKeys().key1
     AZURE_SPEECH_REGION: location
     GEMINI_API_KEY: geminiApiKey
+    GOOGLE_CLIENT_ID: googleClientId
+    GOOGLE_CLIENT_SECRET: googleClientSecret
+    GOOGLE_REDIRECT_URI: frontendUrl != '' ? '${frontendUrl}/api/google-drive/callback' : ''
+    FRONTEND_URL: frontendUrl
   }
 }
 

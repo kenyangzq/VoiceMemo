@@ -90,7 +90,7 @@ export function Recorder({ onMemoSaved, language, memoId, floating = false }: Pr
 
       if (memoId) {
         // Append to existing memo
-        const updated = storage.append(memoId, text, duration);
+        const updated = await storage.append(memoId, text, duration);
         if (!updated) {
           throw new Error('Memo not found');
         }
@@ -105,14 +105,14 @@ export function Recorder({ onMemoSaved, language, memoId, floating = false }: Pr
           tags: storage.getLatestTags(),
           segmentCount: 1,
         };
-        storage.save(memo);
+        await storage.save(memo);
 
         // Fire-and-forget: generate AI title in background
         generateTitle(text, language)
-          .then((title) => {
+          .then(async (title) => {
             const saved = storage.get(memo.id);
             if (saved) {
-              storage.update({ ...saved, title });
+              await storage.update({ ...saved, title });
               onMemoSaved();
             }
           })

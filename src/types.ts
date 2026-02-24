@@ -11,3 +11,9 @@ export interface Memo {
   tags: string[];
   segmentCount?: number; // number of recordings concatenated
 }
+
+export interface ObsidianSettings {
+  enabled: boolean;
+  folderPath: string;
+  syncOnSave: boolean;
+}

@@ -101,7 +101,7 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
       }
 
       // Append to current memo
-      storage.append(memo.id, text, duration);
+      await storage.append(memo.id, text, duration);
       onUpdate();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Transcription failed';
@@ -125,7 +125,7 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedMemo: Memo = {
       ...memo,
       title: title.trim() || memo.title,
@@ -135,7 +135,7 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
         .map((t) => t.trim().toLowerCase())
         .filter((t) => t.length > 0),
     };
-    storage.update(updatedMemo);
+    await storage.update(updatedMemo);
     setEditing(false);
     onUpdate();
   };
@@ -147,21 +147,21 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
     setEditing(false);
   };
 
-  const handleAddTag = () => {
+  const handleAddTag = async () => {
     const trimmed = tagInput.trim().toLowerCase();
     if (trimmed && !memo.tags.includes(trimmed)) {
       const newTags = [...memo.tags, trimmed];
       setTags(newTags.join(', '));
-      storage.update({ ...memo, tags: newTags });
+      await storage.update({ ...memo, tags: newTags });
       onUpdate();
     }
     setTagInput('');
   };
 
-  const handleRemoveTag = (tagToRemove: string) => {
+  const handleRemoveTag = async (tagToRemove: string) => {
     const newTags = memo.tags.filter((t) => t !== tagToRemove);
     setTags(newTags.join(', '));
-    storage.update({ ...memo, tags: newTags });
+    await storage.update({ ...memo, tags: newTags });
     onUpdate();
   };
 
@@ -343,10 +343,10 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
                   <button
                     key={tag}
                     className="tag-suggestion"
-                    onClick={() => {
+                    onClick={async () => {
                       const newTags = [...memo.tags, tag];
                       setTags(newTags.join(', '));
-                      storage.update({ ...memo, tags: newTags });
+                      await storage.update({ ...memo, tags: newTags });
                       onUpdate();
                     }}
                   >

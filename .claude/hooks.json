@@ -1,0 +1,6 @@
+{
+  "user-prompt-submit-hook": {
+    "description": "Reminder about deployment workflow",
+    "instructions": "CRITICAL DEPLOYMENT WORKFLOW CHECKLIST:\nAfter completing ANY task (bug fix, feature, refactor), you MUST:\n\n1. Bump version in src/version.ts (semantic versioning)\n2. Sync version in package.json\n3. Update HISTORY.md with changelog entry (append, newest first)\n4. Update CLAUDE.md if architecture/dependencies changed\n5. Commit: git add changed files + git commit\n6. Push: git push origin main\n\nNEVER complete a task without doing ALL 6 steps. The user will be deployed automatically via GitHub Actions."
+  }
+}

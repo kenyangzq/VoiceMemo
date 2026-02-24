@@ -1,10 +1,16 @@
-import type { Language, ViewMode } from '../types';
+import type { Language, ViewMode, ObsidianSettings } from '../types';
 
 const LANGUAGE_KEY = 'voicememo-language';
 const VIEW_MODE_KEY = 'voicememo-view-mode';
+const OBSIDIAN_SETTINGS_KEY = 'voicememo-obsidian-settings';
 
 const DEFAULT_LANGUAGE: Language = 'en-US';
 const DEFAULT_VIEW_MODE: ViewMode = 'flat';
+const DEFAULT_OBSIDIAN_SETTINGS: ObsidianSettings = {
+  enabled: false,
+  folderPath: 'VoiceMemos',
+  syncOnSave: true,
+};
 
 export const settings = {
   getLanguage(): Language {
@@ -29,5 +35,21 @@ export const settings = {
 
   setViewMode(mode: ViewMode): void {
     localStorage.setItem(VIEW_MODE_KEY, mode);
+  },
+
+  getObsidianSettings(): ObsidianSettings {
+    const stored = localStorage.getItem(OBSIDIAN_SETTINGS_KEY);
+    if (stored) {
+      try {
+        return { ...DEFAULT_OBSIDIAN_SETTINGS, ...JSON.parse(stored) };
+      } catch {
+        return DEFAULT_OBSIDIAN_SETTINGS;
+      }
+    }
+    return DEFAULT_OBSIDIAN_SETTINGS;
+  },
+
+  setObsidianSettings(settings: ObsidianSettings): void {
+    localStorage.setItem(OBSIDIAN_SETTINGS_KEY, JSON.stringify(settings));
   },
 };

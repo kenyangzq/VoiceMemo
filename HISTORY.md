@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-02-24: Add Obsidian sync via Google Drive
+- New Obsidian sync feature to automatically write memos to Google Drive as markdown
+- Created Azure Functions for Google Drive OAuth: `api/src/functions/google-drive-auth.ts` and `api/src/functions/google-drive-write.ts`
+- Added `googleapis` npm package to API dependencies
+- Created `Settings` component with Google Drive authorization UI
+- Added Obsidian settings to `settings` module (enabled, folderPath, syncOnSave)
+- Memos sync to Google Drive on save/update when enabled
+- Markdown format includes Obsidian-compatible YAML frontmatter with metadata
+- Added settings button (gear icon) to app header
+- Updated `storage.save()`, `storage.update()`, and `storage.append()` to async for sync integration
+- Added `docs/GOOGLE_DRIVE_SETUP.md` with complete Google Cloud OAuth setup instructions
+- Updated `api/local.settings.json` with placeholder Google OAuth environment variables
+- Version bumped to 1.8.0
+
 ## 2026-02-24: Fix floating recorder missing modal overlay
 
 - Added recording modal overlay to floating Recorder component (was only in MemoView)

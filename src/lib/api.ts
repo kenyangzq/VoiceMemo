@@ -58,3 +58,95 @@ export async function generateTitle(text: string, language: Language = 'en-US'):
   const data = await res.json() as { title: string };
   return data.title;
 }
+
+// Google Drive OAuth API
+export async function getGoogleDriveAuthUrl(): Promise<{ authUrl: string; state: string }> {
+  const res = await fetch('/api/google-drive/auth');
+  if (!res.ok) {
+    throw new Error('Failed to get authorization URL');
+  }
+  return res.json();
+}
+
+export async function checkGoogleDriveConnection(): Promise<{ connected: boolean }> {
+  const res = await fetch('/api/google-drive/status');
+  if (!res.ok) {
+    return { connected: false };
+  }
+  return res.json();
+}
+
+// Write memo to Google Drive (Obsidian sync)
+export async function writeMemoToDrive(params: {
+  filename: string;
+  content: string;
+  folderPath?: string;
+}): Promise<{ success: boolean; fileId: string; message: string }> {
+  console.log('[API] Writing memo to Drive', { filename: params.filename });
+
+  const res = await fetch('/api/google-drive/write', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  if (!res.ok) {
+    const err = await res.json() as { error: string };
+    console.error('[API] Drive write failed', { error: err.error });
+    throw new Error(err.error || 'Failed to write to Google Drive');
+  }
+
+  const data = await res.json() as { success: boolean; fileId: string; message: string };
+  console.log('[API] Drive write successful', { fileId: data.fileId });
+  return data;
+}
+
+// Generate Obsidian-compatible markdown from memo
+export function generateObsidianMarkdown(memo: {
+  title: string;
+  content: string;
+  createdAt: string;
+  duration: number;
+  tags: string[];
+  segmentCount?: number;
+  id: string;
+}): string {
+  const createdDate = new Date(memo.createdAt);
+  const yamlDate = createdDate.toISOString();
+
+  const tags = memo.tags.length > 0
+    ? memo.tags.map((t) => `  - ${t}`).join('\n')
+    : '';
+
+  const frontmatter = `---
+type: voice-memo
+created: ${yamlDate}
+duration_seconds: ${memo.duration}
+${memo.tags.length > 0 ? `tags:\n${tags}\n` : ''}segments: ${memo.segmentCount || 1}
+voice_id: "${memo.id}"
+app: VoiceMemo
+app_version: "${import('../version').VERSION}"
+---
+
+# ${memo.title}
+
+`;
+
+  return frontmatter + memo.content;
+}
+
+// Generate filename for memo
+export function generateMemoFilename(memo: { title: string; createdAt: string }): string {
+  const createdDate = new Date(memo.createdAt);
+  const datePart = createdDate.toISOString().slice(0, 10).replace(/-/g, '');
+  const timePart = createdDate.toTimeString().slice(0, 5).replace(':', '');
+
+  // Sanitize title for filename
+  const sanitizedTitle = memo.title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .slice(0, 50);
+
+  return `${datePart}-${timePart}-${sanitizedTitle}.md`;
+}
