@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-02-24: Fix floating recorder missing modal overlay
+
+- Added recording modal overlay to floating Recorder component (was only in MemoView)
+- Now shows full-screen overlay when recording from floating button
+- Fixes missing visual feedback during recording from list view
+
+
 ## 2026-02-24: Add floating record button for quick access and in-memo appending
 - Added floating record button (fixed bottom-right) on list view for quick new memo creation
 - Added floating record button in MemoView for appending recordings to existing memos

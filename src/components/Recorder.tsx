@@ -169,6 +169,20 @@ export function Recorder({ onMemoSaved, language, memoId, floating = false }: Pr
             </>
           )}
         </div>
+
+        {/* Recording overlay modal */}
+        {recording && (
+          <div className="recording-modal-overlay">
+            <div className="recording-modal">
+              <div className="recording-indicator" />
+              <span className="recording-time">{formatTime(elapsed)}</span>
+              <span className="recording-status">{memoId ? 'Appending to memo...' : 'Recording new memo...'}</span>
+              <button className="recording-stop-btn" onClick={stopRecording}>
+                Stop
+              </button>
+            </div>
+          </div>
+        )}
       </>
     );
   }
