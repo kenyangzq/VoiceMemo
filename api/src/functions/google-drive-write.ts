@@ -150,7 +150,7 @@ app.http('googleDriveWrite', {
               fields: 'id',
             });
 
-            folderId = folder.data.id;
+            folderId = folder.data.id || undefined;
             log(context, 'Folder created', { folderId });
           }
         } catch (err) {

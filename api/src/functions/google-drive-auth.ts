@@ -99,9 +99,9 @@ app.http('googleDriveCallback', {
       );
 
       // Exchange code for tokens
-      const { tokens } = await oauth2Client.getAccessToken(code);
-      const tokenInfo = tokens as {
-        access_token: string;
+      const tokenResponse = await oauth2Client.getToken(code);
+      const tokenInfo = tokenResponse.tokens as {
+        access_token?: string;
         refresh_token?: string;
         expiry_date?: number;
       };
