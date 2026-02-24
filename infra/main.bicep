@@ -26,6 +26,10 @@ param repositoryUrl string = ''
 @description('GitHub branch for deployment')
 param repositoryBranch string = 'main'
 
+@secure()
+@description('Google Gemini API key for title generation')
+param geminiApiKey string = ''
+
 resource speechService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: '${staticWebAppName}-speech'
   location: location
@@ -62,6 +66,7 @@ resource appSettings 'Microsoft.Web/staticSites/config@2023-12-01' = {
   properties: {
     AZURE_SPEECH_KEY: speechService.listKeys().key1
     AZURE_SPEECH_REGION: location
+    GEMINI_API_KEY: geminiApiKey
   }
 }
 

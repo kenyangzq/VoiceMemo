@@ -18,12 +18,13 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 - `src/components/LanguageSelector.tsx` — Language dropdown (English/中文)
 - `src/components/ViewToggle.tsx` — Toggle for switching between flat, tag-folders, and date-folders views
 - `src/lib/audio.ts` — MediaRecorder API wrapper
-- `src/lib/api.ts` — API client (calls `/api/transcribe`)
+- `src/lib/api.ts` — API client (calls `/api/transcribe` and `/api/generate-title`)
 - `src/lib/storage.ts` — localStorage CRUD for memos
 - `src/lib/settings.ts` — localStorage for language and view mode preferences
 - `src/types.ts` — Shared TypeScript interfaces including `Language` and `ViewMode` types
 - `src/version.ts` — App version constant (displayed in header)
 - `api/src/functions/transcribe.ts` — Azure Speech Service proxy function (supports language parameter)
+- `api/src/functions/generateTitle.ts` — Gemini Flash title generation (POST /api/generate-title)
 - `vite.config.ts` — Vite config with dev proxy to Azure Functions
 - `staticwebapp.config.json` — Azure SWA routing
 - `infra/main.bicep` — Bicep template for Azure Static Web App
@@ -33,7 +34,8 @@ Voice memo web app — record audio via browser mic, transcribe with Azure Speec
 - Frontend: `npm run dev` (port 5173, proxies `/api` to 7071)
 - API: `cd api && npm run dev` (Azure Functions Core Tools, port 7071)
 - Build: `npm run build` (frontend) / `cd api && npm run build` (API)
-- Requires `OPENAI_API_KEY` in `api/local.settings.json`
+- Requires `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION` in `api/local.settings.json`
+- Optional: `GEMINI_API_KEY` in `api/local.settings.json` for AI title generation
 
 ## Conventions
 - TypeScript strict mode

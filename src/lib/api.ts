@@ -43,3 +43,18 @@ export async function transcribe(audioBlob: Blob, language: Language = 'en-US'):
 
   return data.text;
 }
+
+export async function generateTitle(text: string, language: Language = 'en-US'): Promise<string> {
+  const res = await fetch('/api/generate-title', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, language }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Title generation failed (${res.status})`);
+  }
+
+  const data = await res.json() as { title: string };
+  return data.title;
+}

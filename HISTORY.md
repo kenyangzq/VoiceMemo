@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-02-24: Add AI-generated memo titles with Gemini Flash
+- New Azure Function `api/src/functions/generateTitle.ts` — calls Google Gemini Flash 2.0 (free tier) to generate concise titles from transcription content
+- Uses raw `fetch` to Gemini REST API (no SDK dependency added)
+- Title generation is fire-and-forget: memo saves instantly with fallback title (first 60 chars), then updates when AI title arrives
+- Only triggers on new memo creation, not when appending to existing memos
+- Language-aware: generates Chinese titles for Chinese memos
+- Graceful fallback: if Gemini fails, the fallback title is silently kept
+- Added `generateTitle()` to frontend API client (`src/lib/api.ts`)
+- Updated `Recorder.tsx` to call title generation after new memo creation
+- Added `GEMINI_API_KEY` to `api/local.settings.json` and `infra/main.bicep`
+- Version bumped to 1.5.0
+
 ## 2026-02-23: Fix mobile memo view header layout
 - Changed `.memo-view-header` from `justify-content: space-between` to flexbox with `gap` and `flex-wrap`
 - Buttons now wrap gracefully on narrow mobile screens instead of getting cramped

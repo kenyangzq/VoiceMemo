@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { AudioRecorder } from '../lib/audio';
-import { transcribe } from '../lib/api';
+import { transcribe, generateTitle } from '../lib/api';
 import { storage } from '../lib/storage';
 import type { Memo, Language } from '../types';
 
@@ -105,6 +105,19 @@ export function Recorder({ onMemoSaved, language, memoId }: Props) {
           segmentCount: 1,
         };
         storage.save(memo);
+
+        // Fire-and-forget: generate AI title in background
+        generateTitle(text, language)
+          .then((title) => {
+            const saved = storage.get(memo.id);
+            if (saved) {
+              storage.update({ ...saved, title });
+              onMemoSaved();
+            }
+          })
+          .catch((err) => {
+            console.warn('[Recorder] Title generation failed, keeping fallback title:', err);
+          });
       }
       onMemoSaved();
     } catch (err) {
