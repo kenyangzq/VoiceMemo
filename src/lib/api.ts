@@ -1,4 +1,5 @@
 import type { Language } from '../types';
+import { VERSION } from '../version';
 
 export async function transcribe(audioBlob: Blob, language: Language = 'en-US'): Promise<string> {
   console.log('[API] Starting transcription request', {
@@ -125,7 +126,7 @@ duration_seconds: ${memo.duration}
 ${memo.tags.length > 0 ? `tags:\n${tags}\n` : ''}segments: ${memo.segmentCount || 1}
 voice_id: "${memo.id}"
 app: VoiceMemo
-app_version: "${import('../version').VERSION}"
+app_version: "${VERSION}"
 ---
 
 # ${memo.title}
