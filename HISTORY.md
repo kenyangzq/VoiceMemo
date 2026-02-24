@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-02-24: Add floating record button for quick access and in-memo appending
+- Added floating record button (fixed bottom-right) on list view for quick new memo creation
+- Added floating record button in MemoView for appending recordings to existing memos
+- New full-screen recording modal overlay with pulsing indicator and stop button
+- Recorder component now supports both inline and floating modes via `floating` prop
+- Mobile-optimized: larger touch targets (72px) on small screens
+- Enhanced error validation: minimum duration, max file size, empty audio detection
+- Updated `App.tsx` to render Recorder as floating button on list view
+- Updated `MemoView.tsx` with inline recording capability (no need for separate append mode)
+- Updated `Recorder.tsx` with floating prop and conditional rendering
+- Updated `src/index.css` with floating button styles, recording modal, and animations
+- Version bumped to 1.7.0
+
 ## 2026-02-24: Smart tag suggestions and auto-inherit tags
 - MemoView now shows existing tags as clickable suggestions below the "Add tag" input, filtered to exclude tags already on the memo
 - New memos automatically inherit tags from the most recent memo (no more starting from scratch)

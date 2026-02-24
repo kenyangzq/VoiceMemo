@@ -97,13 +97,52 @@ body {
   padding: 0 16px 24px;
 }
 
-/* Recorder */
-.recorder {
+/* Recorder - inline version (for append mode) */
+.recorder.recorder-inline {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   padding: 32px 0;
+}
+
+/* Floating record button (fixed bottom-right) */
+.floating-record-btn-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.floating-record-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Touch-friendly larger size on mobile */
+@media (max-width: 480px) {
+  .floating-record-btn-container {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .floating-record-btn {
+    width: 72px;
+    height: 72px;
+  }
 }
 
 .record-btn {
@@ -117,6 +156,10 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+}
+
+.floating-record-btn:hover {
+  box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .record-btn:hover {
@@ -150,6 +193,16 @@ body {
 .recorder-label {
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+.floating-record-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 4px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
 }
 
 .recorder-error {
@@ -889,4 +942,90 @@ body {
 
 .form-btn-save:hover {
   opacity: 0.9;
+}
+
+/* Recording modal overlay */
+.recording-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.recording-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  min-width: 200px;
+}
+
+.recording-indicator {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.recording-time {
+  font-size: 2rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.recording-status {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.recording-stop-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+
+.recording-stop-btn:hover {
+  background: var(--surface-hover);
+}
+
+/* Floating error message */
+.recorder-error-visible {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  max-width: calc(100vw - 32px);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { AudioRecorder } from '../lib/audio';
+import { transcribe } from '../lib/api';
 import { storage } from '../lib/storage';
 import type { Memo, Language } from '../types';
 
@@ -25,7 +27,7 @@ interface Props {
   allTags?: string[];
 }
 
-export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, allTags = [] }: Props) {
+export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, language = 'en-US', allTags = [] }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
@@ -33,6 +35,88 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
   const [tagInput, setTagInput] = useState('');
   const [copyFeedback, setCopyFeedback] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
+
+  // Recording state
+  const [recording, setRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const timerRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      setError(null);
+      if (!recorderRef.current) {
+        recorderRef.current = new AudioRecorder();
+      }
+      await recorderRef.current.start();
+      setRecording(true);
+      setElapsed(0);
+      timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+    } catch (err) {
+      setError('Microphone access denied. Please allow microphone access.');
+      console.error(err);
+    }
+  }, []);
+
+  const stopRecording = useCallback(async () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setRecording(false);
+    setProcessing(true);
+    setError(null);
+
+    try {
+      if (!recorderRef.current) {
+        throw new Error('Recorder not initialized');
+      }
+      const { blob, duration } = await recorderRef.current.stop();
+
+      // Validate audio blob before sending
+      if (blob.size === 0) {
+        throw new Error('Recording produced empty audio file. Please try again.');
+      }
+
+      // Minimum duration check
+      if (duration < 0.5) {
+        throw new Error('Recording too short. Please record for at least 0.5 seconds.');
+      }
+
+      // Maximum file size check
+      const MAX_SIZE = 25 * 1024 * 1024;
+      if (blob.size > MAX_SIZE) {
+        throw new Error('Recording too large. Please keep recordings under 25MB.');
+      }
+
+      const text = await transcribe(blob, language);
+
+      if (!text || text.trim().length === 0) {
+        throw new Error('No speech was detected in the recording. Please try speaking more clearly.');
+      }
+
+      // Append to current memo
+      storage.append(memo.id, text, duration);
+      onUpdate();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Transcription failed';
+      setError(msg);
+      console.error('[MemoView] Recording error:', err);
+    } finally {
+      setProcessing(false);
+    }
+  }, [memo.id, language, onUpdate]);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
 
   const handleDelete = () => {
     if (confirm('Delete this memo?')) {
@@ -320,6 +404,52 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, 
           <h2 className="memo-view-title">{memo.title}</h2>
           <ReactMarkdown>{memo.content}</ReactMarkdown>
         </div>
+      )}
+
+      {/* Floating record button for appending to memo */}
+      {!editing && (
+        <>
+          {error && (
+            <div className="recorder-error recorder-error-visible">
+              {error}
+            </div>
+          )}
+          <div className="floating-record-btn-container">
+            {processing ? (
+              <div className="recorder-processing">
+                <div className="spinner" />
+                <span>Transcribing...</span>
+              </div>
+            ) : (
+              <>
+                <button
+                  className={`floating-record-btn ${recording ? 'recording' : ''}`}
+                  onClick={recording ? stopRecording : startRecording}
+                  aria-label={recording ? 'Stop recording' : 'Record and append to memo'}
+                >
+                  <span className="record-icon" />
+                </button>
+                <span className="floating-record-label">
+                  {recording ? formatTime(elapsed) : ''}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Recording overlay modal */}
+          {recording && (
+            <div className="recording-modal-overlay">
+              <div className="recording-modal">
+                <div className="recording-indicator" />
+                <span className="recording-time">{formatTime(elapsed)}</span>
+                <span className="recording-status">Recording to memo...</span>
+                <button className="recording-stop-btn" onClick={stopRecording}>
+                  Stop
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

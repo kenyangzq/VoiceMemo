@@ -8,9 +8,10 @@ interface Props {
   onMemoSaved: () => void;
   language: Language;
   memoId?: string; // If provided, append to existing memo instead of creating new
+  floating?: boolean; // If true, render as floating button (fixed bottom-right)
 }
 
-export function Recorder({ onMemoSaved, language, memoId }: Props) {
+export function Recorder({ onMemoSaved, language, memoId, floating = false }: Props) {
   const [recording, setRecording] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -139,8 +140,41 @@ export function Recorder({ onMemoSaved, language, memoId }: Props) {
     return `${m}:${sec.toString().padStart(2, '0')}`;
   };
 
+  if (floating) {
+    return (
+      <>
+        {error && (
+          <div className={`recorder-error ${recording || processing ? 'recorder-error-visible' : ''}`}>
+            {error}
+          </div>
+        )}
+        <div className="floating-record-btn-container">
+          {processing ? (
+            <div className="recorder-processing">
+              <div className="spinner" />
+              <span>Transcribing...</span>
+            </div>
+          ) : (
+            <>
+              <button
+                className={`floating-record-btn ${recording ? 'recording' : ''}`}
+                onClick={recording ? stopRecording : startRecording}
+                aria-label={recording ? 'Stop recording' : 'Start recording'}
+              >
+                <span className="record-icon" />
+              </button>
+              <span className="floating-record-label">
+                {recording ? formatTime(elapsed) : ''}
+              </span>
+            </>
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="recorder">
+    <div className="recorder recorder-inline">
       {error && <div className="recorder-error">{error}</div>}
 
       {processing ? (

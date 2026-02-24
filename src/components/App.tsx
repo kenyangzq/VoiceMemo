@@ -100,7 +100,6 @@ export function App() {
           />
         ) : (
           <>
-            <Recorder onMemoSaved={refresh} language={language} />
             <MemoList
               memos={memos}
               selectedId={selectedId}
@@ -111,6 +110,11 @@ export function App() {
           </>
         )}
       </main>
+
+      {/* Floating record button on list view */}
+      {!selectedMemo && !appendMemoId && (
+        <Recorder onMemoSaved={refresh} language={language} floating />
+      )}
     </div>
   );
 }
