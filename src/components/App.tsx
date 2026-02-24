@@ -96,6 +96,7 @@ export function App() {
             onUpdate={refresh}
             onAppendRecording={() => setAppendMemoId(selectedMemo.id)}
             language={language}
+            allTags={allTags}
           />
         ) : (
           <>

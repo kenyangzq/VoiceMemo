@@ -22,9 +22,10 @@ interface Props {
   onUpdate: () => void;
   onAppendRecording?: () => void;
   language?: Language;
+  allTags?: string[];
 }
 
-export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }: Props) {
+export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording, allTags = [] }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(memo.title);
   const [content, setContent] = useState(memo.content);
@@ -230,23 +231,47 @@ export function MemoView({ memo, onDelete, onBack, onUpdate, onAppendRecording }
 
       {/* Add tag (when not editing) */}
       {!editing && (
-        <div className="memo-add-tag">
-          <input
-            type="text"
-            className="tag-input"
-            placeholder="Add tag..."
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleAddTag();
-              }
-            }}
-          />
-          <button className="tag-add-btn" onClick={handleAddTag}>
-            Add
-          </button>
+        <div className="memo-add-tag-section">
+          <div className="memo-add-tag">
+            <input
+              type="text"
+              className="tag-input"
+              placeholder="Add tag..."
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+            />
+            <button className="tag-add-btn" onClick={handleAddTag}>
+              Add
+            </button>
+          </div>
+          {(() => {
+            const suggestions = allTags.filter((t) => !memo.tags.includes(t));
+            if (suggestions.length === 0) return null;
+            return (
+              <div className="tag-suggestions">
+                {suggestions.map((tag) => (
+                  <button
+                    key={tag}
+                    className="tag-suggestion"
+                    onClick={() => {
+                      const newTags = [...memo.tags, tag];
+                      setTags(newTags.join(', '));
+                      storage.update({ ...memo, tags: newTags });
+                      onUpdate();
+                    }}
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 

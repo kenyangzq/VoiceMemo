@@ -57,4 +57,10 @@ function append(id: string, additionalContent: string, additionalDuration: numbe
   return updated;
 }
 
-export const storage = { getAll, save, get, remove, update, getAllTags, append };
+function getLatestTags(): string[] {
+  const memos = getAll();
+  if (memos.length === 0) return [];
+  return memos[0].tags || [];
+}
+
+export const storage = { getAll, save, get, remove, update, getAllTags, getLatestTags, append };

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-02-24: Smart tag suggestions and auto-inherit tags
+- MemoView now shows existing tags as clickable suggestions below the "Add tag" input, filtered to exclude tags already on the memo
+- New memos automatically inherit tags from the most recent memo (no more starting from scratch)
+- Added `getLatestTags()` to storage module
+- Passed `allTags` from App to MemoView for suggestion display
+- Added dashed-border tag suggestion chips with hover accent styling
+
 ## 2026-02-24: Add AI-generated memo titles with Gemini Flash
 - New Azure Function `api/src/functions/generateTitle.ts` — calls Google Gemini Flash 2.0 (free tier) to generate concise titles from transcription content
 - Uses raw `fetch` to Gemini REST API (no SDK dependency added)
